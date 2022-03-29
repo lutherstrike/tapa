@@ -4,7 +4,7 @@ on:
   workflow_dispatch:
     inputs:
       job:
-        description: Specifies a single job to run.
+        description: Specifies the job name to run; leave empty to run all jobs.
         required: false
 
 jobs:
@@ -37,13 +37,16 @@ jobs:
           sudo apt-get install -y --no-install-recommends \
             xilinx-u280-xdma-dev \
 
-          cmake -S . -B build
+          cmake -S . -B build -D CMAKE_BUILD_TYPE=Release
           cmake --build build --target all --parallel $(nproc)
-          cmake --build build --target install
+          sudo cmake --build build --target install
       - name: Checkout benchmark
-        run: git clone https://github.com/UCLA-VAST/splag.git
+        run: |
+          git clone https://github.com/UCLA-VAST/splag.git
+          cd splag
+          git checkout 7a68fe42773b2ba22840395880249c40553a36d6
       - name: Configure benchmark
-        run: cmake -S splag -B splag/build
+        run: cmake -S splag -B splag/build -D CMAKE_BUILD_TYPE=Release
       - name: Build benchmark
         run: |
           cmake \
